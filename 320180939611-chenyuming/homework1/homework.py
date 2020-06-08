@@ -72,8 +72,8 @@ def getArg():
         args: A dict storing arguments
     """
     parser = ArgumentParser(description="Count the commit")
-    parser.add_argument('-p', '--path', metavar='DIR', default='../linux/', help='path to Git Repository')
-    parser.add_argument('-r', '--rev', type=str, default='v4.4', help='First Reversion')
+    parser.add_argument('-p', '--path', metavar='DIR', default='..\..\linux', help='path to Git Repository')
+    parser.add_argument('-r', '--rev', type=str, default='v4', help='First Reversion')
     parser.add_argument('-b', '--base', type=str, default='v4.4', help='Base Reversion')  # Not sure to do that
     parser.add_argument('-g', '--rev-range', type=int, default=10, help='Range of Reversion')
     # Use boolean replace 1 0
@@ -99,14 +99,15 @@ class Counter:
         self.rev_range = args.rev_range
         self.cumulative = args.cumulative
         # Catch the Invalid Reversion Range Error
-        self.max = self.rep.execute(["git tag", "|", "grep "+self.rev, "|", "sort -n -k3 -t\".\" -r", "|", "head -n 1"], True)
-        self.max = self.max[len(self.rev + "."):]
-        try:
-            assert int(self.max) >= self.rev_range
-        except AssertionError:
-            print("Invalid Reversion Range", "Max rev %s" % self.max)
-            write_log('Invalid Reversion Range: %s' % self.max)
-            raise InvalidRangeError
+        # self.max = self.rep.execute(
+        #     ["git tag", "|", "grep " + self.rev, "|", "sort -n -k3 -t\".\" -r", "|", "head -n 1"], True)
+        # self.max = self.max[len(self.rev + "."):]
+        # try:
+        #     assert int(self.max) >= self.rev_range
+        # except AssertionError:
+        #     print("Invalid Reversion Range", "Max rev %s" % self.max)
+        #     write_log('Invalid Reversion Range: %s' % self.max)
+        #     raise InvalidRangeError
         # Extract the time of the base commit from git
         # The output is "time" so remove the "time"
         self.base = self.rep.execute(['git', 'log', '-1', '--pretty=format:\"%ct\"', args.base],False).replace('\"','')
@@ -144,7 +145,7 @@ class Counter:
         """
         Start counting
         """
-        rev1 = self.rev
+        rev1 = self.rev+ ".4"
         # Fill the 'result'
         for sl in range(1, self.rev_range + 1):
             rev2 = self.rev + "." + str(sl)
@@ -207,4 +208,6 @@ if __name__ == "__main__":
     r = Counter(args)
     title, result = r.run()
     print(title)
+    print(result)
+    result.insert(1,'d',result['hour']-result['hour'].shift(1))
     print(result)
